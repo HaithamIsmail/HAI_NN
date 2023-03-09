@@ -3,5 +3,6 @@
 __all__ = [
     'Layers',
     'Activations',
-    'Losses'
+    'Losses',
+    'Optimizers'
 ]
