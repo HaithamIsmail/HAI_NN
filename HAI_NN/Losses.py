@@ -147,3 +147,53 @@ class BinaryCrossentropy(Loss):
         
         # Normalize gradient
         self.dinputs = self.dinputs / num_samples
+    
+class MeanSquaredError(Loss):
+    
+    # forward pass
+    def forward(self, y_pred, y_true):
+        
+        # calculate loss
+        # axis -1 to calculate mean across multiple outputs
+        sample_losses = np.mean((y_true - y_pred)**2, axis=-1)
+        
+        # return losses
+        return sample_losses
+    
+    # Backward pass
+    def backward(self, dvalues, y_true):
+        
+        # Number of samples
+        num_samples = len(dvalues)
+        
+        # Number of outputs
+        num_outs = len(dvalues[0])
+        
+        # Calculate gradient w.r.t inputs (i.e. y_hat)
+        self.dinputs = -2 * (y_true - dvalues) / num_outs
+        
+        # normalize to make it invariant to the batch size
+        self.dinputs = self.dinputs / num_samples
+
+class MeanAbsoluteError(Loss):
+    
+    def forward(self, y_pred, y_true):
+        
+        # calculate loss and mean over all outputs
+        samples_losses = np.mean(np.abs(y_true - y_pred), axis=-1)
+        
+        return samples_losses
+    
+    def backward(self, dvalues, y_true):
+        
+        # Number of samples
+        num_samples = len(dvalues)
+        
+        # number of outputs
+        num_outs = len(dvalues[0])
+        
+        # calculate gradients
+        self.dinputs = np.sign(y_true - dvalues) / num_outs
+        
+        # normalize to make it invariant over batch size
+        self.dinputs = self.dinputs / num_samples

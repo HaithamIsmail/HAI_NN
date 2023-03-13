@@ -5,6 +5,14 @@ class activation:
         self.forward(inputs)
         return self.output
 
+class Linear(activation):
+    def forward(self, inputs):
+        self.inputs = inputs
+        self.output = inputs
+    
+    def backward(self, dvalues):
+        self.dinputs = dvalues.copy()
+        
 class ReLU(activation):
     def forward(self, inputs):
         self.inputs = inputs

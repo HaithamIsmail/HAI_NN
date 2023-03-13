@@ -10,7 +10,7 @@ class Layer:
         self.bias_regularizer_L1 = bias_regularizer_L1
         self.bias_regularizer_L2 = bias_regularizer_L2
         # Initialize weights and biases
-        self.weights = 0.01 * np.random.randn(n_inputs, n_neurons)
+        self.weights = 0.1 * np.random.randn(n_inputs, n_neurons)
         self.biases = np.zeros((1, n_neurons))
         
     def __call__(self, inputs):
