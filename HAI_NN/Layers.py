@@ -13,10 +13,17 @@ class Layer:
         self.weights = 0.1 * np.random.randn(n_inputs, n_neurons)
         self.biases = np.zeros((1, n_neurons))
         
-    def __call__(self, inputs):
-        self.forward(inputs)
+    def __call__(self, inputs, training):
+        self.forward(inputs, training)
         return self.output
+
+class Input(Layer):
+    def __init__(self):
+        pass
     
+    def forward(self, inputs, training):
+        self.output = inputs
+
 class Dense(Layer):
     def __init__(self, n_inputs, n_neurons,
                  weight_regularizer_L1=0, weight_regularizer_L2=0,
@@ -26,7 +33,7 @@ class Dense(Layer):
                        bias_regularizer_L1, bias_regularizer_L2)
         
     # Forward pass
-    def forward(self, inputs):
+    def forward(self, inputs, training):
         self.inputs = inputs
         self.output = np.dot(inputs, self.weights) + self.biases
     
@@ -65,8 +72,12 @@ class Dropout(Layer):
         # in the Binomial distribution
         self.rate = 1 - rate
     
-    def forward(self, inputs):
+    def forward(self, inputs, training):
         self.inputs = inputs
+        
+        if not training:
+            self.output = inputs.copy()
+            return
         
         # Generate scaled mask
         # we add the scaling because we need the inputs

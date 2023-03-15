@@ -1,15 +1,16 @@
 import numpy as np
 
-class SGD:
+class optimizer:
+    def __call__(self,  layer):
+        self.update_params(layer)
+        
+class SGD(optimizer):
     def __init__(self, learning_rate=1., decay=0., momentum=0.) -> None:
         self.learning_rate = learning_rate
         self.current_learning_rate = learning_rate
         self.decay = decay
         self.iterations = 0
         self.momentum = momentum
-    
-    def __call__(self,  layer):
-        self.update_params(layer)
     
     def update_params(self, layer):
         if self.momentum:
@@ -41,16 +42,13 @@ class SGD:
     def post_update_params(self):
         self.iterations += 1
 
-class AdaGrad:
+class AdaGrad(optimizer):
     def __init__(self, learning_rate=1., decay=0., epsilon=1e-7) -> None:
         self.learning_rate = learning_rate
         self.current_learning_rate = learning_rate
         self.decay = decay
         self.iterations = 0
         self.epsilon = epsilon
-    
-    def __call__(self,  layer):
-        self.update_params(layer)
     
     def update_params(self, layer):
         # if layer does not contain cache arrays
@@ -86,9 +84,6 @@ class RMSprop:
         self.epsilon = epsilon
         # cache memory decay rate, typically 0.9
         self.rho = rho
-    
-    def __call__(self,  layer):
-        self.update_params(layer)
     
     def update_params(self, layer):
         # if layer does not contain cache arrays

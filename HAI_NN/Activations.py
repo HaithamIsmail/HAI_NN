@@ -6,15 +6,19 @@ class activation:
         return self.output
 
 class Linear(activation):
-    def forward(self, inputs):
+    def forward(self, inputs, training):
         self.inputs = inputs
         self.output = inputs
     
     def backward(self, dvalues):
         self.dinputs = dvalues.copy()
+
+    # Calculate prediction for outputs
+    def predictions(self, outputs):
+        return outputs
         
 class ReLU(activation):
-    def forward(self, inputs):
+    def forward(self, inputs, training):
         self.inputs = inputs
         self.output = np.maximum(0, inputs)
     
@@ -24,9 +28,13 @@ class ReLU(activation):
         
         # Zero gradient where input values are negative
         self.dinputs[self.inputs <= 0] = 0
+    
+    # Calculate prediction for outputs
+    def predictions(self, outputs):
+        return outputs
 
 class Sigmoid(activation):
-    def forward(self, inputs):
+    def forward(self, inputs, training):
         self.inputs = inputs
         self.output = 1 / (1 + np.exp(-inputs))
     
@@ -34,10 +42,13 @@ class Sigmoid(activation):
         # Derivative w.r.t to inputs is sigma * (1-sigma)
         # dJ/dinputs = dJ/dz * dz/dinputs 
         self.dinputs = dvalues * (1 - self.output) * self.output
-        
+    
+    # Calculate predictions
+    def predictions(self, outputs):
+        return (outputs > 0.5) * 1
     
 class Softmax(activation):
-    def forward(self, inputs):
+    def forward(self, inputs, training):
         
         self.inputs = inputs
         
@@ -87,3 +98,6 @@ class Softmax(activation):
             # by a single value from the loss function's gradient, the result is a single value
             # forming a vector of the partial derivatives sample-wise and a 2D array batch-wise.
             self.dinputs[index] = np.dot(jacobian_matrix, single_dvalues)
+    
+    def predictions(self, outputs):
+        return np.argmax(outputs, axis=1)
