@@ -1,24 +1,24 @@
 import numpy as np
 
 class activation:
-    def __call__(self, inputs):
-        self.forward(inputs)
+    def __call__(self, inputs: np.ndarray, training=False):
+        self.forward(inputs, training)
         return self.output
 
 class Linear(activation):
-    def forward(self, inputs, training):
+    def forward(self, inputs: np.ndarray, training):
         self.inputs = inputs
         self.output = inputs
     
-    def backward(self, dvalues):
+    def backward(self, dvalues: np.ndarray):
         self.dinputs = dvalues.copy()
 
     # Calculate prediction for outputs
-    def predictions(self, outputs):
+    def predictions(self, outputs: np.ndarray):
         return outputs
         
 class ReLU(activation):
-    def forward(self, inputs, training):
+    def forward(self, inputs: np.ndarray, training):
         self.inputs = inputs
         self.output = np.maximum(0, inputs)
     
@@ -30,25 +30,26 @@ class ReLU(activation):
         self.dinputs[self.inputs <= 0] = 0
     
     # Calculate prediction for outputs
-    def predictions(self, outputs):
+    def predictions(self, outputs: np.ndarray):
         return outputs
 
 class Sigmoid(activation):
-    def forward(self, inputs, training):
+    def forward(self, inputs: np.ndarray, training):
         self.inputs = inputs
         self.output = 1 / (1 + np.exp(-inputs))
     
-    def backward(self, dvalues):
+    def backward(self, dvalues: np.ndarray):
         # Derivative w.r.t to inputs is sigma * (1-sigma)
         # dJ/dinputs = dJ/dz * dz/dinputs 
         self.dinputs = dvalues * (1 - self.output) * self.output
     
     # Calculate predictions
-    def predictions(self, outputs):
+    # multiply by 1 to tranform values from (True/False) to (1/0)
+    def predictions(self, outputs: np.ndarray):
         return (outputs > 0.5) * 1
     
 class Softmax(activation):
-    def forward(self, inputs, training):
+    def forward(self, inputs: np.ndarray, training):
         
         self.inputs = inputs
         
@@ -61,7 +62,7 @@ class Softmax(activation):
         
         self.output = probabilities
     
-    def backward(self, dvalues):
+    def backward(self, dvalues: np.ndarray):
         
         # create an unintialized array with the same shape as the gradient
         # we are recieving to apply the chain rule
@@ -99,5 +100,5 @@ class Softmax(activation):
             # forming a vector of the partial derivatives sample-wise and a 2D array batch-wise.
             self.dinputs[index] = np.dot(jacobian_matrix, single_dvalues)
     
-    def predictions(self, outputs):
+    def predictions(self, outputs: np.ndarray):
         return np.argmax(outputs, axis=1)

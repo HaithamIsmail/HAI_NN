@@ -4,11 +4,31 @@ from .Layers import *
 
 class Loss:
     def __call__(self, output: np.ndarray, y: np.ndarray, *, include_regularization=False):
+        return self.calculate(output, y, include_regularization=include_regularization)
+
+    def calculate(self, output: np.ndarray, y: np.ndarray, *, include_regularization=False):
         sample_losses = self.forward(output, y)
         data_loss = np.mean(sample_losses)
+        
+        self.accumulated_sum += np.sum(sample_losses)
+        self.accumulated_count += len(sample_losses)
+        
         if not include_regularization:
             return data_loss
         return data_loss, self.regularization_loss()
+    
+    def calculate_accumulated(self, *, include_regularization=False):
+        data_loss = self.accumulated_sum / self.accumulated_count
+        
+        if not include_regularization:
+            return data_loss
+        
+        return data_loss, self.regularization_loss()
+    
+    # Reset variables for accumulated loss
+    def new_pass(self):
+        self.accumulated_sum = 0
+        self.accumulated_count = 0
 
     def remember_trainable_layers(self, trainable_layers):
         self.trainable_layers: list[Layer] = trainable_layers
@@ -63,7 +83,7 @@ class CategoricalCrossEntropy(Loss):
         negative_log_likelihoods = -np.log(correct_confidences)
         return negative_log_likelihoods
 
-    def backwawrd(self, dvalues, y_true):
+    def backwawrd(self, dvalues: np.ndarray, y_true: np.ndarray):
         """
         Backward prop
         params:
@@ -95,7 +115,7 @@ class CategoricalCrossEntropy(Loss):
 
 class Softmax_With_CategoricalCrossentropy():
     
-    def backward(self, dvalues: np.ndarray, y_true):
+    def backward(self, dvalues: np.ndarray, y_true: np.ndarray):
         num_samples = len(dvalues)
         
         # if labels are one hot encoded
@@ -111,7 +131,7 @@ class Softmax_With_CategoricalCrossentropy():
         self.dinputs = self.dinputs / num_samples
 
 class BinaryCrossentropy(Loss):
-    def forward(self, y_pred, y_true):
+    def forward(self, y_pred: np.ndarray, y_true: np.ndarray):
         
         # Clip data to prevent division by 0
         # clip both sides to not drag mean towards any value
