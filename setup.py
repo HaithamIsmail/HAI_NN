@@ -5,16 +5,16 @@ from setuptools import find_packages
 import HAI_NN
 
 
-def get_readme():
-    with open('README.md', encoding='utf-8') as readme_file:
-        return readme_file.read()
+# def get_readme():
+#     with open('README.md', encoding='utf-8') as readme_file:
+#         return readme_file.read()
 
 
 setup(
-    name='alive-progress',
+    name='HAI_NN',
     version=HAI_NN.__version__,
     description=HAI_NN.__description__,
-    long_description=get_readme(),
+    # long_description=get_readme(),
     long_description_content_type='text/markdown',
     url='https://github.com/HaithamIsmail/HAI_NN',
     author=HAI_NN.__author__,
