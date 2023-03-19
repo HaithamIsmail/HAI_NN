@@ -13,7 +13,26 @@ class Layer:
         self.weights = 0.1 * np.random.randn(n_inputs, n_neurons)
         self.biases = np.zeros((1, n_neurons))
         
-    def __call__(self, inputs, training):
+        self.prev: Layer = None
+        self.next: Layer = None
+        self.output: np.ndarray = None
+        self.dweights: np.ndarray = None
+        self.dbiases: np.ndarray = None
+        self.dinputs: np.ndarray = None
+                
+    def forward(self, inputs, training):
+        pass
+
+    def backward(self, dvalues: np.ndarray):
+        pass
+
+    def get_parameters(self):
+        pass
+
+    def set_parameters(self, weights: np.ndarray, biases: np.ndarray):
+        pass
+    
+    def __call__(self, inputs: np.ndarray, training):
         self.forward(inputs, training)
         return self.output
 
@@ -21,7 +40,7 @@ class Input(Layer):
     def __init__(self):
         pass
     
-    def forward(self, inputs, training):
+    def forward(self, inputs: np.ndarray, training):
         self.output = inputs
 
 class Dense(Layer):
@@ -32,8 +51,16 @@ class Dense(Layer):
                        weight_regularizer_L1, weight_regularizer_L2,
                        bias_regularizer_L1, bias_regularizer_L2)
         
+    # Retrieve layer parameters
+    def get_parameters(self):
+        return self.weights, self.biases
+
+    def set_parameters(self, weights: np.ndarray, biases: np.ndarray):
+        self.weights = weights
+        self.biases = biases
+    
     # Forward pass
-    def forward(self, inputs, training):
+    def forward(self, inputs: np.ndarray, training):
         self.inputs = inputs
         self.output = np.dot(inputs, self.weights) + self.biases
     
@@ -72,7 +99,7 @@ class Dropout(Layer):
         # in the Binomial distribution
         self.rate = 1 - rate
     
-    def forward(self, inputs, training):
+    def forward(self, inputs: np.ndarray, training):
         self.inputs = inputs
         
         if not training:
@@ -91,5 +118,5 @@ class Dropout(Layer):
         # Apply mask
         self.output = inputs * self.binary_mask
         
-    def backward(self, dvalues):
+    def backward(self, dvalues: np.ndarray):
         self.dinputs = dvalues * self.binary_mask

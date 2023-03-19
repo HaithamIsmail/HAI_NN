@@ -1,9 +1,26 @@
 import numpy as np
+from .Layers import Layer
 
 class optimizer:
-    def __call__(self,  layer):
-        self.update_params(layer)
+    def __call__(self,  layer: Layer):
+        """
+        call update_params
+        @params:
+            - layer: layer whose parameters are to be updated
         
+        @returns: None
+        """
+        self.update_params(layer)
+    
+    def update_params(self):
+        pass
+    
+    def post_update_params(self):
+        pass
+    
+    def pre_update_params(self):
+        pass
+    
 class SGD(optimizer):
     def __init__(self, learning_rate=1., decay=0., momentum=0.) -> None:
         self.learning_rate = learning_rate
@@ -12,7 +29,14 @@ class SGD(optimizer):
         self.iterations = 0
         self.momentum = momentum
     
-    def update_params(self, layer):
+    def update_params(self, layer: Layer):
+        """
+        update layer parameters
+        @params:
+            - layer: layer whose parameters are to be updated
+        
+        @returns: None
+        """
         if self.momentum:
             # If layer does not have momentum arrays
             # create them and fill with zeros
@@ -36,10 +60,16 @@ class SGD(optimizer):
         layer.biases += bias_updates
     
     def pre_update_params(self):
+        """
+        Update learning rate if decay is defined
+        """
         if self.decay:
             self.current_learning_rate = self.learning_rate * (1. / (1. + self.decay * self.iterations))
     
     def post_update_params(self):
+        """
+        increment current number of iterations
+        """
         self.iterations += 1
 
 class AdaGrad(optimizer):
@@ -50,7 +80,14 @@ class AdaGrad(optimizer):
         self.iterations = 0
         self.epsilon = epsilon
     
-    def update_params(self, layer):
+    def update_params(self, layer: Layer):
+        """
+        update layer parameters
+        @params:
+            - layer: layer whose parameters are to be updated
+        
+        @returns: None
+        """
         # if layer does not contain cache arrays
         # create and fill with zeros
         if not hasattr(layer, 'weight_cache'):
@@ -69,13 +106,19 @@ class AdaGrad(optimizer):
             (np.sqrt(layer.bias_cache) + self.epsilon)
     
     def pre_update_params(self):
+        """
+        Update learning rate if decay is defined
+        """
         if self.decay:
             self.current_learning_rate = self.learning_rate * (1. / (1. + self.decay * self.iterations))
     
     def post_update_params(self):
+        """
+        increment current number of iterations
+        """
         self.iterations += 1
         
-class RMSprop:
+class RMSprop(optimizer):
     def __init__(self, learning_rate=0.001, decay=0., epsilon=1e-7, rho=0.9) -> None:
         self.learning_rate = learning_rate
         self.current_learning_rate = learning_rate
@@ -85,7 +128,14 @@ class RMSprop:
         # cache memory decay rate, typically 0.9
         self.rho = rho
     
-    def update_params(self, layer):
+    def update_params(self, layer: Layer):
+        """
+        update layer parameters
+        @params:
+            - layer: layer whose parameters are to be updated
+        
+        @returns: None
+        """
         # if layer does not contain cache arrays
         # create and fill with zeros
         if not hasattr(layer, 'weight_cache'):
@@ -104,13 +154,19 @@ class RMSprop:
             (np.sqrt(layer.bias_cache) + self.epsilon)
     
     def pre_update_params(self):
+        """
+        Update learning rate if decay is defined
+        """
         if self.decay:
             self.current_learning_rate = self.learning_rate * (1. / (1. + self.decay * self.iterations))
     
     def post_update_params(self):
+        """
+        increment current number of iterations
+        """
         self.iterations += 1
         
-class Adam:
+class Adam(optimizer):
     def __init__(self, learning_rate=0.001, decay=0., epsilon=1e-7, beta_1=0.9, beta_2=0.999) -> None:
         self.learning_rate = learning_rate
         self.current_learning_rate = learning_rate
@@ -122,10 +178,14 @@ class Adam:
         # cache memory decay rate, typically 0.9
         self.beta_2 = beta_2
     
-    def __call__(self,  layer):
-        self.update_params(layer)
-    
-    def update_params(self, layer):
+    def update_params(self, layer: Layer):
+        """
+        update layer parameters
+        @params:
+            - layer: layer whose parameters are to be updated
+        
+        @returns: None
+        """
         # if layer does not contain cache arrays
         # create and fill with zeros
         if not hasattr(layer, 'weight_cache'):
@@ -160,8 +220,14 @@ class Adam:
             (np.sqrt(bias_cache_corrected) + self.epsilon)
     
     def pre_update_params(self):
+        """
+        Update learning rate if decay is defined
+        """
         if self.decay:
             self.current_learning_rate = self.learning_rate * (1. / (1. + self.decay * self.iterations))
     
     def post_update_params(self):
+        """
+        increment current number of iterations
+        """
         self.iterations += 1

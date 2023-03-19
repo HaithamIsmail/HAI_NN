@@ -2,7 +2,10 @@
 import numpy as np
 # Base accuracy class
 class Accuracy:
-    def calculate(self, predictions, y):
+    def compare(self, predictions: np.ndarray, y: np.ndarray):
+        pass
+    
+    def calculate(self, predictions: np.ndarray, y: np.ndarray):
         comparisons = self.compare(predictions, y)
         accuracy = np.mean(comparisons)
         
@@ -22,6 +25,9 @@ class Accuracy:
         self.accumulated_count = 0
     
 class Regression_Accuracy(Accuracy):
+    """
+    A custom made accuracy metric
+    """
     def __init__(self) -> None:
         self.precision = None
     

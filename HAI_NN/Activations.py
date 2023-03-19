@@ -1,28 +1,77 @@
 import numpy as np
+from .Layers import Layer
 
-class activation:
+class activation(Layer):
+    def __init__(self):
+        self.prev: Layer = None
+        self.next: Layer = None
+        
     def __call__(self, inputs: np.ndarray, training=False):
+        """
+        Calls forward method and returns output
+        """
         self.forward(inputs, training)
         return self.output
+    
+    def predictions(self, outputs: np.ndarray):
+        pass
 
 class Linear(activation):
     def forward(self, inputs: np.ndarray, training):
+        """
+        Forward pass
+        @params:
+            - inputs: inputs samples
+            - training: dummy parameter used for consistency along the framework
+        
+        @returns: None
+        """
         self.inputs = inputs
         self.output = inputs
     
     def backward(self, dvalues: np.ndarray):
+        """
+        Backward pass
+        @params:
+            - dvalues: passed gradient (from next layer)
+        
+        @returns: None
+        """
         self.dinputs = dvalues.copy()
 
     # Calculate prediction for outputs
     def predictions(self, outputs: np.ndarray):
+        """
+        Return the prediction out of the output
+        i.e. turn scalar values into a single class prediction
+        @params:
+            - outputs: array of scalar values
+        
+        @returns: numpy.ndarray
+        """
         return outputs
         
 class ReLU(activation):
     def forward(self, inputs: np.ndarray, training):
+        """
+        Forward pass
+        @params:
+            - inputs: inputs samples
+            - training: dummy parameter used for consistency along the framework
+        
+        @returns: None
+        """
         self.inputs = inputs
         self.output = np.maximum(0, inputs)
     
     def backward(self, dvalues: np.ndarray):
+        """
+        Backward pass
+        @params:
+            - dvalues: passed gradient (from next layer)
+        
+        @returns: None
+        """
         # Make a copy to make sure the original variable is not modified
         self.dinputs = dvalues.copy()
         
@@ -35,10 +84,25 @@ class ReLU(activation):
 
 class Sigmoid(activation):
     def forward(self, inputs: np.ndarray, training):
+        """
+        Forward pass
+        @params:
+            - inputs: inputs samples
+            - training: dummy parameter used for consistency along the framework
+        
+        @returns: None
+        """
         self.inputs = inputs
         self.output = 1 / (1 + np.exp(-inputs))
     
     def backward(self, dvalues: np.ndarray):
+        """
+        Backward pass
+        @params:
+            - dvalues: passed gradient (from next layer)
+        
+        @returns: None
+        """
         # Derivative w.r.t to inputs is sigma * (1-sigma)
         # dJ/dinputs = dJ/dz * dz/dinputs 
         self.dinputs = dvalues * (1 - self.output) * self.output
@@ -46,11 +110,26 @@ class Sigmoid(activation):
     # Calculate predictions
     # multiply by 1 to tranform values from (True/False) to (1/0)
     def predictions(self, outputs: np.ndarray):
+        """
+        Return the prediction out of the output
+        i.e. turn scalar values into a single class prediction
+        @params:
+            - outputs: array of scalar values
+        
+        @returns: list of predicted labels
+        """
         return (outputs > 0.5) * 1
     
 class Softmax(activation):
     def forward(self, inputs: np.ndarray, training):
+        """
+        Forward pass
+        @params:
+            - inputs: inputs samples
+            - training: dummy parameter used for consistency along the framework
         
+        @returns: None
+        """
         self.inputs = inputs
         
         # Get unnormalized probabilites
@@ -63,7 +142,13 @@ class Softmax(activation):
         self.output = probabilities
     
     def backward(self, dvalues: np.ndarray):
+        """
+        Backward pass
+        @params:
+            - dvalues: passed gradient (from next layer)
         
+        @returns: None
+        """
         # create an unintialized array with the same shape as the gradient
         # we are recieving to apply the chain rule
         self.dinputs = np.empty_like(dvalues)
@@ -101,4 +186,12 @@ class Softmax(activation):
             self.dinputs[index] = np.dot(jacobian_matrix, single_dvalues)
     
     def predictions(self, outputs: np.ndarray):
+        """
+        Return the prediction out of the output
+        i.e. turn scalar values into a single class prediction
+        @params:
+            - outputs: array of scalar values
+        
+        @returns: list of predicted labels
+        """
         return np.argmax(outputs, axis=1)

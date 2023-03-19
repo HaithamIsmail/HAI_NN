@@ -6,6 +6,9 @@ class Loss:
     def __call__(self, output: np.ndarray, y: np.ndarray, *, include_regularization=False):
         return self.calculate(output, y, include_regularization=include_regularization)
 
+    def backward(self, output: np.ndarray, y: np.ndarray):
+        pass
+
     def calculate(self, output: np.ndarray, y: np.ndarray, *, include_regularization=False):
         sample_losses = self.forward(output, y)
         data_loss = np.mean(sample_losses)
